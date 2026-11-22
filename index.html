@@ -674,13 +674,8 @@
       saveStateToLocal();
     }
 
-    function goHomeView() {
-      var genBox = document.getElementById('neighborGeneratorBox');
-      if (genBox) genBox.style.display = 'flex';
-      var leftPanel = document.querySelector('.left-panel');
-      if (leftPanel) leftPanel.scrollTop = 0;
-      var rightPreview = document.getElementById('rightPreview');
-      if (rightPreview) rightPreview.scrollTop = 0;
+function goHomeView() {
+      window.location.href = 'https://walter19821015.ccwu.cc/';
     }
 
     var FONT_FAMILIES = {
