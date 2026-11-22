@@ -17,7 +17,6 @@
     button:hover, select.toolbar-select:hover { background: #f9fafb; }
     button.primary { background: #2563eb; color: #fff; border-color: #2563eb; font-weight: 600; }
     button.primary:hover { background: #1d4ed8; }
-    button.success { background: #ecfdf5; color: #047857; border-color: #a7f3d0; font-weight: 600; }
     button.accent { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; font-weight: 600; }
     button.active-tool { background: #1e293b; color: #fff; border-color: #1e293b; font-weight: 600; }
     button:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -88,7 +87,7 @@
     .q-block:hover { outline: 1px dashed #93c5fd; }
 
     .free-draggable-img-wrap {
-      position: absolute;
+      position: relative;
       display: inline-block;
       cursor: move;
       user-select: none;
@@ -124,8 +123,6 @@
 
     .modal-mask { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.88); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 12px; }
     .modal-mask.active { display: flex; }
-    .dialog-box { background: #fff; border-radius: 14px; width: 560px; max-width: 94vw; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-    .dialog-box textarea { width: 100%; height: 180px; border: 2px solid #93c5fd; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 12px; outline: none; resize: none; }
 
     .scan-modal-box { background: #fff; border-radius: 14px; width: 1140px; max-width: 97vw; max-height: 96vh; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
     .canvas-stage { flex: 1; min-height: 430px; max-height: 62vh; background: #0f172a; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; user-select: none; touch-action: none; }
@@ -161,25 +158,24 @@
       <div style="display:inline-flex; align-items:center; gap:6px;">
         <span id="styleLabelText" style="font-size:12px; color:#4b5563; font-weight:600;">题干样式：</span>
         <select id="fontSelect" class="toolbar-select" onchange="changeGlobalStyle()">
-          <option value="system_default">系统默认字体</option>
-          <option value="kaiti">楷体（小学语文）</option>
-          <option value="songti">宋体（正式试卷）</option>
-          <option value="heiti">黑体（醒目加粗）</option>
-          <option value="nunito">英语教材体</option>
-          <option value="times">Times New Roman</option>
+          <option value="system_default" data-i18n-opt="font_system">系统默认字体</option>
+          <option value="kaiti" data-i18n-opt="font_kaiti">楷体（小学语文）</option>
+          <option value="songti" data-i18n-opt="font_songti">宋体（正式试卷）</option>
+          <option value="heiti" data-i18n-opt="font_heiti">黑体（醒目加粗）</option>
+          <option value="nunito" data-i18n-opt="font_nunito">英语教材体</option>
+          <option value="times" data-i18n-opt="font_times">Times New Roman</option>
         </select>
-        <select id="fontSizeSelect" class="toolbar-select" style="width:72px;" onchange="changeGlobalStyle()">
-          <option value="14px">14号</option>
-          <option value="15px" selected>15号</option>
-          <option value="16px">16号</option>
-          <option value="18px">18号</option>
-          <option value="20px">20号</option>
-          <option value="24px">24号</option>
+        <select id="fontSizeSelect" class="toolbar-select" style="width:78px;" onchange="changeGlobalStyle()">
+          <option value="14px" data-sz="14">14号</option>
+          <option value="15px" data-sz="15" selected>15号</option>
+          <option value="16px" data-sz="16">16号</option>
+          <option value="18px" data-sz="18">18号</option>
+          <option value="20px" data-sz="20">20号</option>
+          <option value="24px" data-sz="24">24号</option>
         </select>
         <button type="button" id="boldToggleBtn" style="padding:5px 9px; font-weight:700;" onclick="toggleBoldStyle()" title="一键加粗">B</button>
         <input type="color" id="fontColorPicker" class="toolbar-color" value="#111827" style="width:34px; height:32px; padding:2px;" onchange="changeGlobalStyle()" title="字体颜色" />
       </div>
-      <button type="button" class="success" id="hotUpdateBtn" onclick="openUpdateModal()">⚡ 粘贴代码原地更新</button>
       <button type="button" class="primary" id="printBtn" onclick="window.print()">🖨️ 打印 / PDF</button>
       <button type="button" id="homeBtn" onclick="goHomeView()">🏠 <span id="homeBtnText">首页</span></button>
       <div class="lang-dropdown-wrap" id="langDropdownWrap">
@@ -216,7 +212,7 @@
         <div class="neighbor-generator-box" id="neighborGeneratorBox">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span id="neighborBoxTitle" style="font-size: 12px; font-weight: 700; color: #374151;">第二题：填写相邻字母</span>
-            <button type="button" style="padding:2px 6px;font-size:11px;color:#dc2626;" onclick="hideNeighborGeneratorBox()">删除</button>
+            <button type="button" id="neighborBoxDelBtn" style="padding:2px 6px;font-size:11px;color:#dc2626;" onclick="hideNeighborGeneratorBox()">删除</button>
           </div>
           <div style="display: flex; gap: 8px; align-items: center;">
             <select id="neighborModeSelect" style="flex: 1; padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; background: #fff;">
@@ -232,23 +228,21 @@
       </div>
     </aside>
 
-    <main class="right-preview" id="rightPreview">
-      <!-- 多页 A4 容器由 renderSheet() 自动生成 -->
-    </main>
+    <main class="right-preview" id="rightPreview"></main>
   </div>
 
   <div class="modal-mask" id="scanModal">
     <div class="scan-modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div style="display:flex; align-items:center; gap:8px;">
-          <strong style="font-size:15px;">🕸️ 4×4 网格实时曲面拉直台（25交点）</strong>
+          <strong id="scanModalTitle" style="font-size:15px;">🕸️ 4×4 网格实时曲面拉直台（25交点）</strong>
           <button id="modeGridBtn" class="active-tool" style="padding:4px 10px; font-size:12px;" onclick="setWorkMode('grid')">① 4×4 网格交点拉伸</button>
           <button id="modePanBtn" style="padding:4px 10px; font-size:12px;" onclick="setWorkMode('pan')" title="按住图像在白色纸面框内自由拖动位置">✋ 手动拖动位置</button>
           <button id="modeEraseBtn" style="padding:4px 10px; font-size:12px;" onclick="setWorkMode('erase')">② 遮罩橡皮擦</button>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
           <label style="font-size:12px; font-weight:600; color:#334155; display:flex; align-items:center; gap:4px; cursor:pointer;">
-            <input type="checkbox" id="showGridLinesCheck" checked onchange="drawOverlay()" /> 显示网格
+            <input type="checkbox" id="showGridLinesCheck" checked onchange="drawOverlay()" /> <span id="showGridLabel">显示网格</span>
           </label>
           <button type="button" onclick="closeScanModal()">✕</button>
         </div>
@@ -257,39 +251,39 @@
       <div class="control-bar" id="perspectiveBar">
         <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
           <div class="slider-group" title="上下梯形透视校正">
-            <span>↕️ 上下透视：</span>
+            <span id="pitchLabel">↕️ 上下透视：</span>
             <input type="range" id="pitchSlider" min="-35" max="35" value="0" onmousedown="lockSliderBase()" ontouchstart="lockSliderBase()" oninput="applyParametricMesh()" />
             <span class="val-badge" id="pitchVal">0</span>
           </div>
           <div class="slider-group" title="左右梯形透视校正">
-            <span>↔️ 左右透视：</span>
+            <span id="yawLabel">↔️ 左右透视：</span>
             <input type="range" id="yawSlider" min="-35" max="35" value="0" onmousedown="lockSliderBase()" ontouchstart="lockSliderBase()" oninput="applyParametricMesh()" />
             <span class="val-badge" id="yawVal">0</span>
           </div>
           <div class="slider-group" title="高矮比例微调">
-            <span>📏 高矮拉伸：</span>
+            <span id="aspectLabel">📏 高矮拉伸：</span>
             <input type="range" id="aspectSlider" min="-25" max="25" value="0" onmousedown="lockSliderBase()" ontouchstart="lockSliderBase()" oninput="applyParametricMesh()" />
             <span class="val-badge" id="aspectVal">0</span>
           </div>
           <div class="slider-group" title="中间突起展平">
-            <span>🏔️ 局部突起：</span>
+            <span id="bulgeLabel">🏔️ 局部突起：</span>
             <input type="range" id="bulgeSlider" min="-35" max="35" value="0" onmousedown="lockSliderBase()" ontouchstart="lockSliderBase()" oninput="applyParametricMesh()" />
             <span class="val-badge" id="bulgeVal">0</span>
           </div>
           <div class="slider-group" title="自由放大或缩小图像">
-            <span>🔍 缩放：</span>
+            <span id="contentZoomLabel">🔍 缩放：</span>
             <input type="range" id="contentZoomSlider" min="50" max="200" value="100" onmousedown="lockSliderBase()" ontouchstart="lockSliderBase()" oninput="applyParametricMesh()" />
             <span class="val-badge" id="contentZoomVal">100%</span>
           </div>
           <div class="slider-group" title="任意角度旋转图像">
-            <span>🔄 旋转：</span>
+            <span id="rotateLabel">🔄 旋转：</span>
             <input type="range" id="rotateSlider" min="-45" max="45" value="0" onmousedown="lockSliderBase()" ontouchstart="lockSliderBase()" oninput="applyParametricMesh()" />
             <span class="val-badge" id="rotateVal">0°</span>
             <button type="button" style="padding:2px 6px; font-size:11px; margin-left:2px;" onclick="rotateBy90()" title="顺时针旋转90度">↻90°</button>
           </div>
         </div>
         <div style="display:flex; gap:6px;">
-          <button type="button" onclick="resetFullMesh()" style="font-size:12px;">↺ 还原默认</button>
+          <button type="button" id="resetMeshBtn" onclick="resetFullMesh()" style="font-size:12px;">↺ 还原默认</button>
         </div>
       </div>
 
@@ -303,40 +297,26 @@
       <div class="control-bar">
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <div class="slider-group">
-            <span>切透印阈值：</span>
+            <span id="inkCutLabel">切透印阈值：</span>
             <input type="range" id="inkCutSlider" min="140" max="235" value="202" oninput="rebuildCleanTexture()" />
             <span id="inkCutVal" style="display:inline-block; width:28px; text-align:right;">202</span>
           </div>
           <label style="font-size:12px; font-weight:600; color:#047857; display:flex; align-items:center; gap:4px; cursor:pointer;">
-            <input type="checkbox" id="previewRawCheck" onchange="renderWebGLMesh()" /> 对照原图
+            <input type="checkbox" id="previewRawCheck" onchange="renderWebGLMesh()" /> <span id="previewRawLabel">对照原图</span>
           </label>
           <span id="eraseControlsGroup" style="display:none; align-items:center; gap:8px;">
             <span style="color:#cbd5e1;">|</span>
-            <span style="font-size:12px; color:#334155; font-weight:600;">直接涂抹擦除：</span>
+            <span id="eraseBrushLabel" style="font-size:12px; color:#334155; font-weight:600;">直接涂抹擦除：</span>
             <input type="range" id="brushSizeSlider" min="6" max="80" value="26" style="width:80px;" title="橡皮擦大小" oninput="drawOverlay()" />
             <button type="button" id="undoEraseBtn" style="padding:4px 10px; font-size:12px;" onclick="undoLastErase()" disabled>↩️ 撤销恢复</button>
           </span>
         </div>
         <div style="display:flex; gap:8px;">
-          <button type="button" class="accent" onclick="applySavedScanParams()" title="一键载入上一次保存的默认参数">📥 继承原参数</button>
-          <button type="button" class="accent" onclick="saveDefaultScanParams()" title="保存当前参数作为后续新传图的默认值">💾 保存为默认参数</button>
-          <button type="button" onclick="closeScanModal()">取消</button>
-          <button type="button" class="primary" onclick="commitMeshScan()">✅ 确认变形并应用到试卷</button>
+          <button type="button" class="accent" id="inheritParamsBtn" onclick="applySavedScanParams()" title="一键载入上一次保存的默认参数">📥 继承原参数</button>
+          <button type="button" class="accent" id="saveDefaultParamsBtn" onclick="saveDefaultScanParams()" title="保存当前参数作为后续新传图的默认值">💾 保存为默认参数</button>
+          <button type="button" id="cancelScanBtn" onclick="closeScanModal()">取消</button>
+          <button type="button" class="primary" id="commitScanBtn" onclick="commitMeshScan()">✅ 确认变形并应用到试卷</button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-mask" id="updateModal">
-    <div class="dialog-box">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong style="font-size:15px;">⚡ 粘贴新代码（立即原地更新）</strong>
-        <button type="button" onclick="closeUpdateModal()">✕</button>
-      </div>
-      <textarea id="hotCodeInput" placeholder="请按 Command + V 粘贴完整代码..."></textarea>
-      <div style="display:flex; justify-content:flex-end; gap:10px;">
-        <button type="button" onclick="closeUpdateModal()">取消</button>
-        <button type="button" class="primary" onclick="applyHotUpdate()">✅ 立即应用更新</button>
       </div>
     </div>
   </div>
@@ -350,6 +330,13 @@
     var currentLang = 'zh-CN';
     var replacingId = null;
 
+    var FIXED_SHEET_HEADER = {
+      title: 'English Alphabet & Neighboring Letters Worksheet',
+      classMeta: 'Class: ____________',
+      nameMeta: 'Name: ____________',
+      scoreMeta: 'Score: ________'
+    };
+
     var I18N_TEXTS = {
       'zh-CN': {
         brand: '英语练习题生成器',
@@ -357,7 +344,15 @@
         singleCol: '单栏排版',
         twoCol: '双栏拼版',
         styleLabel: '题干样式：',
-        hotUpdate: '⚡ 粘贴代码原地更新',
+        font_system: '系统默认字体',
+        font_kaiti: '楷体（小学语文）',
+        font_songti: '宋体（正式试卷）',
+        font_heiti: '黑体（醒目加粗）',
+        font_nunito: '英语教材体',
+        font_times: 'Times New Roman',
+        sizeSuffix: '号',
+        boldTitle: '一键加粗',
+        colorTitle: '字体颜色',
         printPdf: '🖨️ 打印 / PDF',
         home: '首页',
         lang: '语言',
@@ -368,12 +363,41 @@
         modeLower: '单独小写',
         modeBoth: '大小写一起',
         randomBtn: '🎲 一键随机',
-        sheetTitle: '英语字母与专项巩固排版练习（点击可改标题）',
-        classMeta: '班级：____________',
-        nameMeta: '姓名：____________',
-        scoreMeta: '得分：________',
-        pageFmt: function(p, total) { return '第 ' + p + ' / ' + total + ' 页'; },
-        dir: 'ltr'
+        delBtn: '删除',
+        firstItemLabel: '第一题：英语四线三格（人教版手写字帖）',
+        neighborItemLabel: function(mLabel) { return '填写相邻字母 (' + mLabel + ')'; },
+        photoItemLabel: function(idx) { return '习题正片 #' + idx; },
+        traceSolid: '实心标准示范字',
+        traceDash: '虚线描红练习字',
+        zoomLabel: '缩放：',
+        rerollBtn: '🔀 换一题',
+        showAnsBtn: '👁️ 答案',
+        hideAnsBtn: '🙈 藏答案',
+        scanEditBtn: '🕸️ 4×4 网格实时拉伸精修',
+        replaceImgBtn: '🔄 换图',
+        imgSizeLabel: '图片大小：',
+        photoPromptPlaceholder: '（选填）额外补充题干，留空则仅显示高清扫描件...',
+        scanTitle: '🕸️ 4×4 网格实时曲面拉直台（25交点）',
+        modeGrid: '① 4×4 网格交点拉伸',
+        modePan: '✋ 手动拖动位置',
+        modeErase: '② 遮罩橡皮擦',
+        showGrid: '显示网格',
+        pitchLabel: '↕️ 上下透视：',
+        yawLabel: '↔️ 左右透视：',
+        aspectLabel: '📏 高矮拉伸：',
+        bulgeLabel: '🏔️ 局部突起：',
+        contentZoomLabel: '🔍 缩放：',
+        rotateLabel: '🔄 旋转：',
+        resetMesh: '↺ 还原默认',
+        inkCutLabel: '切透印阈值：',
+        previewRaw: '对照原图',
+        eraseBrushLabel: '直接涂抹擦除：',
+        undoErase: '↩️ 撤销恢复',
+        inheritParams: '📥 继承原参数',
+        saveDefaultParams: '💾 保存为默认参数',
+        cancel: '取消',
+        commitScan: '✅ 确认变形并应用到试卷',
+        pageFmt: function(p, total) { return '第 ' + p + ' / ' + total + ' 页'; }
       },
       'en': {
         brand: 'English Worksheet Generator',
@@ -381,7 +405,15 @@
         singleCol: 'Single Column',
         twoCol: 'Two Columns',
         styleLabel: 'Prompt Style: ',
-        hotUpdate: '⚡ Hot Update Code',
+        font_system: 'System Default Font',
+        font_kaiti: 'KaiTi (Primary Chinese)',
+        font_songti: 'SimSun (Formal Exam)',
+        font_heiti: 'SimHei (Bold Sans)',
+        font_nunito: 'Textbook Font (Nunito)',
+        font_times: 'Times New Roman',
+        sizeSuffix: 'pt',
+        boldTitle: 'Bold',
+        colorTitle: 'Font Color',
         printPdf: '🖨️ Print / PDF',
         home: 'Home',
         lang: 'Language',
@@ -392,12 +424,41 @@
         modeLower: 'Lowercase Only',
         modeBoth: 'Upper & Lowercase',
         randomBtn: '🎲 Randomize',
-        sheetTitle: 'English Alphabet & Neighboring Letters Worksheet',
-        classMeta: 'Class: ____________',
-        nameMeta: 'Name: ____________',
-        scoreMeta: 'Score: ________',
-        pageFmt: function(p, total) { return 'Page ' + p + ' of ' + total; },
-        dir: 'ltr'
+        delBtn: 'Delete',
+        firstItemLabel: 'Q1: Four-Line Grid (PEP Handwriting)',
+        neighborItemLabel: function(mLabel) { return 'Neighboring Letters (' + mLabel + ')'; },
+        photoItemLabel: function(idx) { return 'Scanned Sheet #' + idx; },
+        traceSolid: 'Solid Standard Model',
+        traceDash: 'Dashed Tracing Guide',
+        zoomLabel: 'Scale: ',
+        rerollBtn: '🔀 New Item',
+        showAnsBtn: '👁️ Answer',
+        hideAnsBtn: '🙈 Hide',
+        scanEditBtn: '🕸️ 4×4 Mesh Warp & Scan',
+        replaceImgBtn: '🔄 Replace',
+        imgSizeLabel: 'Image Size: ',
+        photoPromptPlaceholder: '(Optional) Extra prompt text, or leave blank for scan only...',
+        scanTitle: '🕸️ 4×4 Mesh Live Dewarp Studio (25 Nodes)',
+        modeGrid: '① 4×4 Mesh Nodes',
+        modePan: '✋ Drag Position',
+        modeErase: '② Mask Eraser',
+        showGrid: 'Show Grid',
+        pitchLabel: '↕️ Pitch: ',
+        yawLabel: '↔️ Yaw: ',
+        aspectLabel: '📏 Aspect: ',
+        bulgeLabel: '🏔️ Bulge: ',
+        contentZoomLabel: '🔍 Zoom: ',
+        rotateLabel: '🔄 Rotate: ',
+        resetMesh: '↺ Reset',
+        inkCutLabel: 'Ink Threshold: ',
+        previewRaw: 'Original',
+        eraseBrushLabel: 'Brush Erase: ',
+        undoErase: '↩️ Undo',
+        inheritParams: '📥 Load Saved',
+        saveDefaultParams: '💾 Save Default',
+        cancel: 'Cancel',
+        commitScan: '✅ Apply to Worksheet',
+        pageFmt: function(p, total) { return 'Page ' + p + ' of ' + total; }
       },
       'es': {
         brand: 'Generador de Ejercicios de Inglés',
@@ -405,7 +466,15 @@
         singleCol: 'Una Columna',
         twoCol: 'Dos Columnas',
         styleLabel: 'Estilo: ',
-        hotUpdate: '⚡ Actualizar Código',
+        font_system: 'Fuente Predeterminada',
+        font_kaiti: 'KaiTi (Caligrafía)',
+        font_songti: 'SimSun (Examen)',
+        font_heiti: 'SimHei (Negrita)',
+        font_nunito: 'Fuente Escolar (Nunito)',
+        font_times: 'Times New Roman',
+        sizeSuffix: 'pt',
+        boldTitle: 'Negrita',
+        colorTitle: 'Color de Fuente',
         printPdf: '🖨️ Imprimir / PDF',
         home: 'Inicio',
         lang: 'Idioma',
@@ -416,12 +485,41 @@
         modeLower: 'Solo Minúsculas',
         modeBoth: 'Mayúsculas y Minúsculas',
         randomBtn: '🎲 Aleatorio',
-        sheetTitle: 'Hoja de Práctica de Letras y Vecinas en Inglés',
-        classMeta: 'Clase: ____________',
-        nameMeta: 'Nombre: ____________',
-        scoreMeta: 'Nota: ________',
-        pageFmt: function(p, total) { return 'Página ' + p + ' de ' + total; },
-        dir: 'ltr'
+        delBtn: 'Eliminar',
+        firstItemLabel: 'P1: Cuadrícula de 4 Líneas (PEP)',
+        neighborItemLabel: function(mLabel) { return 'Letras Vecinas (' + mLabel + ')'; },
+        photoItemLabel: function(idx) { return 'Escaneo #' + idx; },
+        traceSolid: 'Modelo Sólido',
+        traceDash: 'Trazado Punteado',
+        zoomLabel: 'Escala: ',
+        rerollBtn: '🔀 Cambiar',
+        showAnsBtn: '👁️ Respuesta',
+        hideAnsBtn: '🙈 Ocultar',
+        scanEditBtn: '🕸️ Malla 4×4 y Escaneo',
+        replaceImgBtn: '🔄 Cambiar Img',
+        imgSizeLabel: 'Tamaño: ',
+        photoPromptPlaceholder: '(Opcional) Enunciado adicional o déjalo vacío...',
+        scanTitle: '🕸️ Estudio de Malla 4×4 en Vivo (25 Nodos)',
+        modeGrid: '① Malla 4×4',
+        modePan: '✋ Mover Posición',
+        modeErase: '② Borrador Máscara',
+        showGrid: 'Mostrar Malla',
+        pitchLabel: '↕️ Inclinación V: ',
+        yawLabel: '↔️ Inclinación H: ',
+        aspectLabel: '📏 Proporción: ',
+        bulgeLabel: '🏔️ Curvatura: ',
+        contentZoomLabel: '🔍 Zoom: ',
+        rotateLabel: '🔄 Rotar: ',
+        resetMesh: '↺ Restablecer',
+        inkCutLabel: 'Umbral Tinta: ',
+        previewRaw: 'Original',
+        eraseBrushLabel: 'Borrar con Pincel: ',
+        undoErase: '↩️ Deshacer',
+        inheritParams: '📥 Cargar Guardado',
+        saveDefaultParams: '💾 Guardar Defecto',
+        cancel: 'Cancelar',
+        commitScan: '✅ Aplicar a la Hoja',
+        pageFmt: function(p, total) { return 'Página ' + p + ' de ' + total; }
       },
       'ar': {
         brand: 'مولّد أوراق تمارين الإنجليزية',
@@ -429,7 +527,15 @@
         singleCol: 'عمود واحد',
         twoCol: 'عمودان',
         styleLabel: 'الخط: ',
-        hotUpdate: '⚡ تحديث الكود',
+        font_system: 'خط النظام الافتراضي',
+        font_kaiti: 'خط كايتي',
+        font_songti: 'خط سيمسن',
+        font_heiti: 'خط سيمهي العريض',
+        font_nunito: 'خط الكتب المدرسية',
+        font_times: 'Times New Roman',
+        sizeSuffix: 'نقطة',
+        boldTitle: 'عريض',
+        colorTitle: 'لون الخط',
         printPdf: '🖨️ طباعة / PDF',
         home: 'الرئيسية',
         lang: 'اللغة',
@@ -440,12 +546,41 @@
         modeLower: 'أحرف صغيرة فقط',
         modeBoth: 'كبير وصغير معاً',
         randomBtn: '🎲 عشوائي',
-        sheetTitle: 'ورقة تدريب الحروف الإنجليزية والحروف المجاورة',
-        classMeta: 'الصف: ____________',
-        nameMeta: 'الاسم: ____________',
-        scoreMeta: 'الدرجة: ________',
-        pageFmt: function(p, total) { return 'صفحة ' + p + ' من ' + total; },
-        dir: 'rtl'
+        delBtn: 'حذف',
+        firstItemLabel: 'س١: شبكة الخطوط الأربعة (خط النسخ)',
+        neighborItemLabel: function(mLabel) { return 'الحروف المجاورة (' + mLabel + ')'; },
+        photoItemLabel: function(idx) { return 'مسح ضوئي #' + idx; },
+        traceSolid: 'نموذج متصل قياسي',
+        traceDash: 'تتبع منقط للتدريب',
+        zoomLabel: 'التكبير: ',
+        rerollBtn: '🔀 سؤال جديد',
+        showAnsBtn: '👁️ الإجابة',
+        hideAnsBtn: '🙈 إخفاء',
+        scanEditBtn: '🕸️ شبكة 4×4 ومسح ضوئي',
+        replaceImgBtn: '🔄 تغيير الصورة',
+        imgSizeLabel: 'حجم الصورة: ',
+        photoPromptPlaceholder: '(اختياري) نص إضافي للسؤال أو اتركه فارغاً...',
+        scanTitle: '🕸️ استوديو شبكة 4×4 المباشر (25 نقطة)',
+        modeGrid: '① نقاط شبكة 4×4',
+        modePan: '✋ سحب الموضع',
+        modeErase: '② ممحاة القناع',
+        showGrid: 'إظهار الشبكة',
+        pitchLabel: '↕️ ميل رأسي: ',
+        yawLabel: '↔️ ميل أفقي: ',
+        aspectLabel: '📏 النسبة: ',
+        bulgeLabel: '🏔️ تحدب: ',
+        contentZoomLabel: '🔍 تكبير: ',
+        rotateLabel: '🔄 تدوير: ',
+        resetMesh: '↺ استعادة',
+        inkCutLabel: 'حد الحبر: ',
+        previewRaw: 'الأصل',
+        eraseBrushLabel: 'مسح بالفرشاة: ',
+        undoErase: '↩️ تراجع',
+        inheritParams: '📥 استدعاء المحفوظ',
+        saveDefaultParams: '💾 حفظ كافتراضي',
+        cancel: 'إلغاء',
+        commitScan: '✅ اعتماد وتطبيق',
+        pageFmt: function(p, total) { return 'صفحة ' + p + ' من ' + total; }
       }
     };
 
@@ -463,21 +598,32 @@
       }
     });
 
-    function selectLanguage(langCode) {
-      currentLang = langCode;
+    function applyLanguageToStaticUI(langCode) {
       var t = I18N_TEXTS[langCode] || I18N_TEXTS['zh-CN'];
       document.documentElement.lang = langCode;
       document.getElementById('brandTitleText').innerText = t.brand;
       document.getElementById('layoutLabelPrefix').innerText = t.layoutPrefix;
       document.getElementById('layoutLabelVal').innerText = isTwoCols ? t.twoCol : t.singleCol;
       document.getElementById('styleLabelText').innerText = t.styleLabel;
-      document.getElementById('hotUpdateBtn').innerText = t.hotUpdate;
+
+      document.querySelectorAll('#fontSelect option').forEach(function(opt) {
+        var k = opt.getAttribute('data-i18n-opt');
+        if (k && t[k]) opt.text = t[k];
+      });
+      document.querySelectorAll('#fontSizeSelect option').forEach(function(opt) {
+        var sz = opt.getAttribute('data-sz');
+        if (sz) opt.text = sz + t.sizeSuffix;
+      });
+
+      document.getElementById('boldToggleBtn').title = t.boldTitle;
+      document.getElementById('fontColorPicker').title = t.colorTitle;
       document.getElementById('printBtn').innerText = t.printPdf;
       document.getElementById('homeBtnText').innerText = t.home;
       document.getElementById('currentLangLabel').innerText = t.lang;
       document.getElementById('uploadBoxTitle').innerText = t.uploadTitle;
       document.getElementById('addedItemsLabel').innerText = t.addedItems;
       document.getElementById('neighborBoxTitle').innerText = t.neighborBoxTitle;
+      document.getElementById('neighborBoxDelBtn').innerText = t.delBtn;
 
       var modeSel = document.getElementById('neighborModeSelect');
       if (modeSel && modeSel.options.length >= 3) {
@@ -488,17 +634,42 @@
 
       var genBox = document.getElementById('neighborGeneratorBox');
       if (genBox) {
-        genBox.style.display = 'flex';
         var randBtn = genBox.querySelector('button.accent');
         if (randBtn) randBtn.innerText = t.randomBtn;
       }
+
+      document.getElementById('scanModalTitle').innerText = t.scanTitle;
+      document.getElementById('modeGridBtn').innerText = t.modeGrid;
+      document.getElementById('modePanBtn').innerText = t.modePan;
+      document.getElementById('modeEraseBtn').innerText = t.modeErase;
+      document.getElementById('showGridLabel').innerText = t.showGrid;
+      document.getElementById('pitchLabel').innerText = t.pitchLabel;
+      document.getElementById('yawLabel').innerText = t.yawLabel;
+      document.getElementById('aspectLabel').innerText = t.aspectLabel;
+      document.getElementById('bulgeLabel').innerText = t.bulgeLabel;
+      document.getElementById('contentZoomLabel').innerText = t.contentZoomLabel;
+      document.getElementById('rotateLabel').innerText = t.rotateLabel;
+      document.getElementById('resetMeshBtn').innerText = t.resetMesh;
+      document.getElementById('inkCutLabel').innerText = t.inkCutLabel;
+      document.getElementById('previewRawLabel').innerText = t.previewRaw;
+      document.getElementById('eraseBrushLabel').innerText = t.eraseBrushLabel;
+      document.getElementById('undoEraseBtn').innerText = t.undoErase;
+      document.getElementById('inheritParamsBtn').innerText = t.inheritParams;
+      document.getElementById('saveDefaultParamsBtn').innerText = t.saveDefaultParams;
+      document.getElementById('cancelScanBtn').innerText = t.cancel;
+      document.getElementById('commitScanBtn').innerText = t.commitScan;
 
       document.querySelectorAll('.lang-option').forEach(function(opt) {
         opt.classList.toggle('active', opt.getAttribute('data-lang') === langCode);
       });
       var menu = document.getElementById('langMenu');
       if (menu) menu.classList.remove('open');
+    }
 
+    function selectLanguage(langCode) {
+      currentLang = langCode;
+      applyLanguageToStaticUI(langCode);
+      renderEditor();
       renderSheet();
       saveStateToLocal();
     }
@@ -578,40 +749,6 @@
       ' ': { w: 12, paths: [] }
     };
 
-    var HOT_CODE_STORAGE_KEY = 'walter_hot_updated_code_v1';
-
-    function renderHotFrame(code) {
-      document.body.innerHTML = '';
-      var frame = document.createElement('iframe');
-      frame.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;border:none;z-index:999999;background:#fff;';
-      frame.srcdoc = code;
-      document.body.appendChild(frame);
-    }
-
-    function openUpdateModal() {
-      document.getElementById('hotCodeInput').value = '';
-      document.getElementById('updateModal').classList.add('active');
-    }
-    function closeUpdateModal() { document.getElementById('updateModal').classList.remove('active'); }
-    function applyHotUpdate() {
-      var code = document.getElementById('hotCodeInput').value;
-      if (!code || code.indexOf('<!DOCTYPE html>') === -1) { alert('请先粘贴完整代码！'); return; }
-      try { localStorage.setItem(HOT_CODE_STORAGE_KEY, code); } catch(e) {}
-      renderHotFrame(code);
-    }
-
-    (function restoreHotCodeOnLoad() {
-      try {
-        if (window.self !== window.top) return;
-        var savedCode = localStorage.getItem(HOT_CODE_STORAGE_KEY);
-        if (savedCode && savedCode.indexOf('<!DOCTYPE html>') !== -1) {
-          window.addEventListener('DOMContentLoaded', function() {
-            renderHotFrame(savedCode);
-          });
-        }
-      } catch(e) {}
-    })();
-
     function formatLetterByMode(upperChar, mode) {
       if (!upperChar) return '';
       if (mode === 'upper') return upperChar.toUpperCase();
@@ -619,10 +756,11 @@
       return upperChar.toUpperCase() + upperChar.toLowerCase();
     }
 
-    function getModeLabel(mode) {
-      if (mode === 'lower') return '单独小写';
-      if (mode === 'both') return '大小写一起';
-      return '单独大写';
+    function getModeLabel(mode, langCode) {
+      var t = I18N_TEXTS[langCode || currentLang] || I18N_TEXTS['zh-CN'];
+      if (mode === 'lower') return t.modeLower;
+      if (mode === 'both') return t.modeBoth;
+      return t.modeUpper;
     }
 
     function pickRandomLetterWithNeighbors(mode) {
@@ -645,7 +783,6 @@
       return {
         id: Date.now() + Math.floor(Math.random() * 10000),
         type: 'letter-neighbor',
-        label: '填写相邻字母 (' + getModeLabel(m) + ')',
         prompt: '(' + subNum + ')',
         neighborMode: m,
         centerLetter: picked.center,
@@ -664,7 +801,7 @@
 
     function buildDefaultFactoryItems() {
       return [
-        { id: 1, type: 'english-grid', label: '英语四线三格（人教版手写字帖）', prompt: '1. Look and trace the letters (按标准四线三格描红并书写):', gridText: 'Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz', gridScale: 100, gridTraceMode: 'solid', rawCanvas: null, imageData: null, imgHeight: 380, maxImgHeight: 485, posX: 0, posY: 0 },
+        { id: 1, type: 'english-grid', prompt: '1. Look and trace the letters (按标准四线三格描红并书写):', gridText: 'Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz', gridScale: 100, gridTraceMode: 'solid', rawCanvas: null, imageData: null, imgHeight: 380, maxImgHeight: 485, posX: 0, posY: 0 },
         createDefaultNeighborItem(1, 'upper')
       ];
     }
@@ -682,9 +819,6 @@
       var mode = sel ? sel.value : 'upper';
       var existingNeighbors = items.filter(function(i) { return i.type === 'letter-neighbor'; });
       var subNum = existingNeighbors.length + 1;
-      if (existingNeighbors.length === 0) {
-        neighborSectionTitle = '2. 写出中间字母左右相邻的字母（' + getModeLabel(mode) + '）：';
-      }
       items.push(createDefaultNeighborItem(subNum, mode));
       renderAll();
     }
@@ -697,7 +831,6 @@
       it.centerLetter = picked.center;
       it.prevLetter = picked.prev;
       it.nextLetter = picked.next;
-      it.label = '填写相邻字母 (' + getModeLabel(mode) + ')';
       renderAll();
     }
 
@@ -709,7 +842,6 @@
       it.centerLetter = picked.center;
       it.prevLetter = picked.prev;
       it.nextLetter = picked.next;
-      it.label = '填写相邻字母 (' + getModeLabel(mode) + ')';
       renderAll();
     }
 
@@ -730,8 +862,7 @@
         isBoldActive: isBoldActive,
         currentFontSize: currentFontSize,
         currentColor: currentColor,
-        currentLang: currentLang,
-        titleText: document.getElementById('sheetTitleEl') ? document.getElementById('sheetTitleEl').innerText : ''
+        currentLang: currentLang
       };
       try {
         localStorage.setItem('walter_worksheet_state_v2', JSON.stringify(state));
@@ -820,18 +951,13 @@
       };
       try {
         localStorage.setItem('walter_scan_params_v1', JSON.stringify(params));
-        alert('💾 当前精修参数和网格已保存为默认模板！');
-      } catch(e) {
-        alert('保存失败：' + e.message);
-      }
+        alert('💾');
+      } catch(e) {}
     }
 
     function applySavedScanParams() {
       var savedP = loadSavedScanParams();
-      if (!savedP) {
-        alert('暂无已保存的默认参数，请先调整好后点击“保存为默认参数”。');
-        return;
-      }
+      if (!savedP) return;
       document.getElementById('pitchSlider').value = savedP.pitch;
       document.getElementById('yawSlider').value = savedP.yaw;
       document.getElementById('aspectSlider').value = savedP.aspect;
@@ -852,7 +978,6 @@
         renderWebGLMesh();
         drawOverlay();
       }
-      alert('📥 已成功继承原参数！');
     }
 
     function computeNodesFromSavedParams(p, w, h) {
@@ -1018,12 +1143,12 @@
         var layers = computeFlattenedAndMask(rawC, cutVal);
         var cleanC = compositeCleanScan(layers.flatCanvas, layers.maskCanvas);
         var maxH = 485;
-        var idx = items.length + 1;
+        var photoSeq = items.filter(function(x) { return x.type === 'photo-cleaned'; }).length + 1;
 
         var newItem = {
           id: Date.now() + i,
           type: 'photo-cleaned',
-          label: '习题正片 #' + idx,
+          photoIndex: photoSeq,
           prompt: '',
           gridText: '',
           gridScale: 100,
@@ -1765,7 +1890,6 @@
         closeScanModal();
       } catch (err) {
         console.error(err);
-        alert('导出图像时发生错误，请重试：' + err.message);
       }
     }
 
@@ -1832,46 +1956,52 @@
       replacingId = null;
     }
 
-    function createSingleItemCard(item) {
+    function createSingleItemCard(item, photoCounter) {
+      var t = I18N_TEXTS[currentLang] || I18N_TEXTS['zh-CN'];
       var card = document.createElement('div'); card.className = 'item-card';
+      var itemLabel = '';
       var ctrl = '';
+
       if (item.type === 'english-grid') {
+        itemLabel = t.firstItemLabel;
         var gs = item.gridScale !== undefined ? item.gridScale : 100;
         var tm = item.gridTraceMode || 'solid';
         ctrl = '<textarea class="grid-text-editor" oninput="updateGridText(' + item.id + ', this.value)">' + (item.gridText || '') + '</textarea>' +
                '<div style="display:flex; gap:6px; align-items:center;">' +
                  '<select style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;" onchange="updateGridTraceMode(' + item.id + ', this.value)">' +
-                   '<option value="solid"' + (tm === 'solid' ? ' selected' : '') + '>实心标准示范字</option>' +
-                   '<option value="trace"' + (tm === 'trace' ? ' selected' : '') + '>虚线描红练习字</option>' +
+                   '<option value="solid"' + (tm === 'solid' ? ' selected' : '') + '>' + t.traceSolid + '</option>' +
+                   '<option value="trace"' + (tm === 'trace' ? ' selected' : '') + '>' + t.traceDash + '</option>' +
                  '</select>' +
-                 '<div class="size-control" style="flex:1;"><span>缩放：</span><input type="range" min="0" max="200" value="' + gs + '" oninput="updateGridScale(' + item.id + ', this.value)" /><span id="gsc-' + item.id + '" style="font-weight:600;width:44px;text-align:right;">' + gs + '%</span></div>' +
+                 '<div class="size-control" style="flex:1;"><span>' + t.zoomLabel + '</span><input type="range" min="0" max="200" value="' + gs + '" oninput="updateGridScale(' + item.id + ', this.value)" /><span id="gsc-' + item.id + '" style="font-weight:600;width:44px;text-align:right;">' + gs + '%</span></div>' +
                '</div>';
       } else if (item.type === 'letter-neighbor') {
         var curMode = item.neighborMode || 'upper';
+        itemLabel = t.neighborItemLabel(getModeLabel(curMode, currentLang));
         var nScale = item.gridScale !== undefined ? item.gridScale : 100;
         ctrl = '<div style="display:flex; gap:6px; align-items:center;">' +
                  '<select style="padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; flex:1;" onchange="changeNeighborMode(' + item.id + ', this.value)">' +
-                   '<option value="upper"' + (curMode === 'upper' ? ' selected' : '') + '>单独大写</option>' +
-                   '<option value="lower"' + (curMode === 'lower' ? ' selected' : '') + '>单独小写</option>' +
-                   '<option value="both"' + (curMode === 'both' ? ' selected' : '') + '>大小写一起</option>' +
+                   '<option value="upper"' + (curMode === 'upper' ? ' selected' : '') + '>' + t.modeUpper + '</option>' +
+                   '<option value="lower"' + (curMode === 'lower' ? ' selected' : '') + '>' + t.modeLower + '</option>' +
+                   '<option value="both"' + (curMode === 'both' ? ' selected' : '') + '>' + t.modeBoth + '</option>' +
                  '</select>' +
-                 '<button type="button" style="padding:4px 8px; font-size:12px;" onclick="rerollLetterItem(' + item.id + ')">🔀 换一题</button>' +
-                 '<button type="button" style="padding:4px 8px; font-size:12px;" onclick="toggleNeighborAnswer(' + item.id + ')">' + (item.showAnswer ? '🙈 藏答案' : '👁️ 答案') + '</button>' +
+                 '<button type="button" style="padding:4px 8px; font-size:12px;" onclick="rerollLetterItem(' + item.id + ')">' + t.rerollBtn + '</button>' +
+                 '<button type="button" style="padding:4px 8px; font-size:12px;" onclick="toggleNeighborAnswer(' + item.id + ')">' + (item.showAnswer ? t.hideAnsBtn : t.showAnsBtn) + '</button>' +
                '</div>' +
-               '<div class="size-control"><span>缩放：</span><input type="range" min="0" max="200" value="' + nScale + '" oninput="updateGridScale(' + item.id + ', this.value)" /><span id="gsc-' + item.id + '" style="font-weight:600;width:44px;text-align:right;">' + nScale + '%</span></div>';
+               '<div class="size-control"><span>' + t.zoomLabel + '</span><input type="range" min="0" max="200" value="' + nScale + '" oninput="updateGridScale(' + item.id + ', this.value)" /><span id="gsc-' + item.id + '" style="font-weight:600;width:44px;text-align:right;">' + nScale + '%</span></div>';
       } else if (item.type === 'photo-cleaned') {
+        itemLabel = t.photoItemLabel(photoCounter);
         var maxH = 485;
         var curH = Math.min(item.imgHeight, maxH);
         ctrl = '<div style="display:flex; gap:6px;">' +
-                 '<button class="primary" style="flex:1; justify-content:center; padding:7px;" onclick="openScanModal(' + item.id + ')">🕸️ 4×4 网格实时拉伸精修</button>' +
-                 '<button class="accent" style="flex:1; justify-content:center; padding:7px;" onclick="triggerReplace(' + item.id + ')">🔄 换图</button>' +
+                 '<button class="primary" style="flex:1; justify-content:center; padding:7px;" onclick="openScanModal(' + item.id + ')">' + t.scanEditBtn + '</button>' +
+                 '<button class="accent" style="flex:1; justify-content:center; padding:7px;" onclick="triggerReplace(' + item.id + ')">' + t.replaceImgBtn + '</button>' +
                '</div>' +
-               '<div class="size-control"><span>图片大小：</span><input type="range" min="80" max="' + maxH + '" value="' + curH + '" oninput="updateImgHeight(' + item.id + ', this.value)" /><span id="sz-' + item.id + '" style="font-weight:600;width:52px;text-align:right;">' + curH + 'px</span></div>';
+               '<div class="size-control"><span>' + t.imgSizeLabel + '</span><input type="range" min="80" max="' + maxH + '" value="' + curH + '" oninput="updateImgHeight(' + item.id + ', this.value)" /><span id="sz-' + item.id + '" style="font-weight:600;width:52px;text-align:right;">' + curH + 'px</span></div>';
       }
       var promptInputHtml = item.type === 'photo-cleaned'
-        ? '<textarea class="raw-editor" placeholder="（选填）额外补充题干，留空则仅显示高清扫描件..." oninput="updatePrompt(' + item.id + ', this.value)">' + item.prompt + '</textarea>'
+        ? '<textarea class="raw-editor" placeholder="' + t.photoPromptPlaceholder + '" oninput="updatePrompt(' + item.id + ', this.value)">' + item.prompt + '</textarea>'
         : '<textarea class="raw-editor" oninput="updatePrompt(' + item.id + ', this.value)">' + item.prompt + '</textarea>';
-      card.innerHTML = '<div class="item-card-header"><span class="tag-type">' + item.label + '</span><button type="button" style="padding:2px 6px;font-size:11px;color:#dc2626;" onclick="removeItem(' + item.id + ')">删除</button></div>' + promptInputHtml + ctrl;
+      card.innerHTML = '<div class="item-card-header"><span class="tag-type">' + itemLabel + '</span><button type="button" style="padding:2px 6px;font-size:11px;color:#dc2626;" onclick="removeItem(' + item.id + ')">' + t.delBtn + '</button></div>' + promptInputHtml + ctrl;
       return card;
     }
 
@@ -1881,8 +2011,10 @@
       document.getElementById('countLabel').innerText = items.length;
       baseList.innerHTML = '';
       neighborList.innerHTML = '';
+      var pCount = 0;
       items.forEach(function(item) {
-        var card = createSingleItemCard(item);
+        if (item.type === 'photo-cleaned') pCount++;
+        var card = createSingleItemCard(item, pCount);
         if (item.type === 'letter-neighbor') {
           neighborList.appendChild(card);
         } else {
@@ -2144,10 +2276,10 @@
       return block;
     }
 
-    function createA4PageElement(pageIndex, ff, t, isFirstPage) {
+    function createA4PageElement(pageIndex, ff, isFirstPage) {
       var sheet = document.createElement('div');
       sheet.className = 'a4-sheet';
-      sheet.dir = t.dir || 'ltr';
+      sheet.dir = 'ltr';
       sheet.style.fontFamily = ff;
       sheet.style.fontSize = currentFontSize;
       sheet.style.fontWeight = isBoldActive ? '700' : '400';
@@ -2157,11 +2289,11 @@
         var headerDiv = document.createElement('div');
         headerDiv.className = 'sheet-header';
         headerDiv.innerHTML =
-          '<div class="sheet-title" id="sheetTitleEl" contenteditable="true" onblur="saveStateToLocal()">' + t.sheetTitle + '</div>' +
+          '<div class="sheet-title" id="sheetTitleEl" contenteditable="true" onblur="saveStateToLocal()">' + FIXED_SHEET_HEADER.title + '</div>' +
           '<div class="sheet-meta">' +
-            '<span contenteditable="true" onblur="saveStateToLocal()">' + t.classMeta + '</span>' +
-            '<span contenteditable="true" onblur="saveStateToLocal()">' + t.nameMeta + '</span>' +
-            '<span contenteditable="true" onblur="saveStateToLocal()">' + t.scoreMeta + '</span>' +
+            '<span contenteditable="true" onblur="saveStateToLocal()">' + FIXED_SHEET_HEADER.classMeta + '</span>' +
+            '<span contenteditable="true" onblur="saveStateToLocal()">' + FIXED_SHEET_HEADER.nameMeta + '</span>' +
+            '<span contenteditable="true" onblur="saveStateToLocal()">' + FIXED_SHEET_HEADER.scoreMeta + '</span>' +
           '</div>';
         sheet.appendChild(headerDiv);
       }
@@ -2185,7 +2317,7 @@
       var t = I18N_TEXTS[currentLang] || I18N_TEXTS['zh-CN'];
 
       var pageNum = 1;
-      var curPage = createA4PageElement(pageNum, ff, t, true);
+      var curPage = createA4PageElement(pageNum, ff, true);
       preview.appendChild(curPage.sheet);
 
       function tryAppendToPage(el) {
@@ -2196,7 +2328,7 @@
         if (elRect.bottom > bottomLimit && curPage.grid.children.length > 1) {
           curPage.grid.removeChild(el);
           pageNum++;
-          curPage = createA4PageElement(pageNum, ff, t, false);
+          curPage = createA4PageElement(pageNum, ff, false);
           preview.appendChild(curPage.sheet);
           curPage.grid.appendChild(el);
         }
@@ -2233,7 +2365,7 @@
             if (blockRect.bottom > sheetRect.bottom - 38 && rowGrid.children.length > 1) {
               rowGrid.removeChild(subBlock);
               pageNum++;
-              curPage = createA4PageElement(pageNum, ff, t, false);
+              curPage = createA4PageElement(pageNum, ff, false);
               preview.appendChild(curPage.sheet);
 
               rowGrid = document.createElement('div');
@@ -2260,8 +2392,9 @@
     }
 
     function renderAll() {
+      applyLanguageToStaticUI(currentLang);
       renderEditor();
-      selectLanguage(currentLang);
+      renderSheet();
     }
 
     loadStateFromLocal();
